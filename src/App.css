@@ -93,3 +93,22 @@
 .player-container .rr-controller div {
   color: #fff !important;
 }
+
+/* Progress bar styling - black with gray border */
+.player-container .rr-controller .rr-progress,
+.player-container .rr-controller .rr-progress__step,
+.player-container .rr-controller input[type="range"] {
+  background: #000 !important;
+  border-color: #666 !important;
+}
+
+.player-container .rr-controller .rr-progress__handler,
+.player-container .rr-controller input[type="range"]::-webkit-slider-thumb {
+  background: #000 !important;
+  border-color: #666 !important;
+}
+
+.player-container .rr-controller .rr-timeline,
+.player-container .rr-controller .rr-progress-wrapper {
+  border-color: #666 !important;
+}
