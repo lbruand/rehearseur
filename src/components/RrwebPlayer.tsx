@@ -14,6 +14,17 @@ export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
   const playerRef = useRef<PlayerInstance | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showControls, setShowControls] = useState(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const distanceFromBottom = window.innerHeight - e.clientY;
+      setShowControls(distanceFromBottom < 100);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   useEffect(() => {
     async function loadRecording() {
@@ -83,7 +94,7 @@ export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
     <div className="rrweb-player-wrapper">
       {loading && <div className="loading">Loading recording...</div>}
       {error && <div className="error">Error: {error}</div>}
-      <div ref={containerRef} className="player-container" />
+      <div ref={containerRef} className={`player-container ${showControls ? 'show-controls' : ''}`} />
     </div>
   );
 }

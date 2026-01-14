@@ -42,5 +42,25 @@
 
 .player-container .rr-player__frame {
   width: 100% !important;
-  height: calc(100% - 80px) !important;
+  height: 100% !important;
+}
+
+/* Slide-in controls when near bottom */
+.player-container .rr-controller {
+  position: absolute !important;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 100;
+}
+
+.player-container.show-controls .rr-controller {
+  transform: translateY(0);
+}
+
+.player-container .rr-player {
+  position: relative;
+  overflow: hidden;
 }
