@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import rrwebPlayer from 'rrweb-player';
+import { decode } from '@toon-format/toon';
 import 'rrweb-player/dist/style.css';
 
 interface RrwebPlayerProps {
@@ -27,10 +28,11 @@ export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
           throw new Error(`Failed to fetch recording: ${response.statusText}`);
         }
 
-        let events;
-
         let data;
-        if (recordingUrl.endsWith('.gz')) {
+        if (recordingUrl.endsWith('.toon')) {
+          const text = await response.text();
+          data = decode(text, { strict: false, indent: 2 });
+        } else if (recordingUrl.endsWith('.gz')) {
           const decompressedStream = response.body!.pipeThrough(
             new DecompressionStream('gzip')
           );
@@ -41,7 +43,7 @@ export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
         }
 
         // Handle both raw event arrays and wrapped {events: [...]} format
-        events = Array.isArray(data) ? data : data.events;
+        const events = Array.isArray(data) ? data : (data as { events: unknown[] }).events;
 
         if (playerRef.current) {
           playerRef.current.pause();
