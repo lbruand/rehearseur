@@ -2,9 +2,15 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import rrwebPlayer from 'rrweb-player';
 import { decode } from '@toon-format/toon';
 import 'rrweb-player/dist/style.css';
+import { useAnnotations } from '../hooks/useAnnotations';
+import { AnnotationMarkers } from './AnnotationMarkers';
+import { TableOfContents } from './TableOfContents';
+import { AnnotationOverlay } from './AnnotationOverlay';
+import type { Annotation } from '../types/annotations';
 
 interface RrwebPlayerProps {
   recordingUrl: string;
+  annotationsUrl?: string;
 }
 
 interface RecordingDimensions {
@@ -12,16 +18,30 @@ interface RecordingDimensions {
   height: number;
 }
 
-type PlayerInstance = rrwebPlayer & { $destroy?: () => void };
+type PlayerInstance = rrwebPlayer & {
+  $destroy?: () => void;
+  goto?: (timeOffset: number, play?: boolean) => void;
+  getReplayer?: () => {
+    iframe?: HTMLIFrameElement;
+    getMetaData?: () => { startTime: number; endTime: number };
+    getCurrentTime?: () => number;
+    on?: (event: string, handler: (...args: unknown[]) => void) => void;
+    off?: (event: string, handler: (...args: unknown[]) => void) => void;
+  };
+};
 
 const MIN_DISPLAY_WIDTH = 200;
 const MIN_DISPLAY_HEIGHT = 150;
+const ANNOTATION_THRESHOLD_MS = 500;
 
-export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
+export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<PlayerInstance | null>(null);
   const eventsRef = useRef<unknown[] | null>(null);
+  const triggeredAnnotationsRef = useRef<Set<string>>(new Set());
+  const lastTimeRef = useRef<number>(0);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showControls, setShowControls] = useState(false);
@@ -29,6 +49,14 @@ export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
   const [playerSize, setPlayerSize] = useState<{ width: number; height: number } | null>(null);
   const [tooSmall, setTooSmall] = useState(false);
   const [ready, setReady] = useState(false);
+
+  // Annotation state
+  const { annotations, sections, title } = useAnnotations(annotationsUrl);
+  const [tocOpen, setTocOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [activeAnnotation, setActiveAnnotation] = useState<Annotation | null>(null);
+  const [totalDuration, setTotalDuration] = useState(0);
+  const [iframeElement, setIframeElement] = useState<HTMLIFrameElement | null>(null);
 
   const calculateSize = useCallback(() => {
     if (!recordingDimensions || !wrapperRef.current) return;
@@ -72,6 +100,52 @@ export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, [calculateSize]);
 
+  // Check for annotation triggers
+  const checkAnnotationTriggers = useCallback(
+    (time: number) => {
+      // Detect seeking backward - reset triggered annotations
+      if (time < lastTimeRef.current - 1000) {
+        triggeredAnnotationsRef.current.clear();
+      }
+      lastTimeRef.current = time;
+
+      for (const annotation of annotations) {
+        const timeDiff = Math.abs(time - annotation.timestamp);
+        if (
+          timeDiff < ANNOTATION_THRESHOLD_MS &&
+          !triggeredAnnotationsRef.current.has(annotation.id)
+        ) {
+          triggeredAnnotationsRef.current.add(annotation.id);
+
+          if (annotation.autopause) {
+            playerRef.current?.pause();
+          }
+
+          if (annotation.driverJsCode) {
+            setActiveAnnotation(annotation);
+          }
+        }
+      }
+    },
+    [annotations]
+  );
+
+  // Poll for current time
+  useEffect(() => {
+    if (!playerRef.current) return;
+
+    const interval = setInterval(() => {
+      const replayer = playerRef.current?.getReplayer?.();
+      if (replayer?.getCurrentTime) {
+        const time = replayer.getCurrentTime();
+        setCurrentTime(time);
+        checkAnnotationTriggers(time);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [checkAnnotationTriggers, ready]);
+
   // Create player when container is ready and we have size
   useEffect(() => {
     if (!ready || !containerRef.current || !eventsRef.current || !playerSize) return;
@@ -94,6 +168,18 @@ export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
         height: playerSize.height,
       },
     });
+
+    // Get iframe element for driver.js
+    const replayer = playerRef.current.getReplayer?.();
+    if (replayer?.iframe) {
+      setIframeElement(replayer.iframe);
+    }
+
+    // Get total duration
+    if (replayer?.getMetaData) {
+      const meta = replayer.getMetaData();
+      setTotalDuration(meta.endTime - meta.startTime);
+    }
   }, [ready, playerSize]);
 
   useEffect(() => {
@@ -163,7 +249,19 @@ export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
     }
   }, []);
 
+  const goToAnnotation = useCallback((annotation: Annotation) => {
+    if (playerRef.current) {
+      playerRef.current.goto(annotation.timestamp);
+      triggeredAnnotationsRef.current.clear();
+    }
+  }, []);
+
+  const handleDismissOverlay = useCallback(() => {
+    setActiveAnnotation(null);
+  }, []);
+
   const showPlayer = !loading && !error && !tooSmall;
+  const hasAnnotations = annotations.length > 0;
 
   return (
     <div className="rrweb-player-wrapper" ref={wrapperRef}>
@@ -176,10 +274,36 @@ export function RrwebPlayer({ recordingUrl }: RrwebPlayerProps) {
         </div>
       )}
       {showPlayer && (
-        <div
-          ref={containerCallbackRef}
-          className={`player-container ${showControls ? 'show-controls' : ''}`}
-        />
+        <>
+          <div
+            ref={containerCallbackRef}
+            className={`player-container ${showControls ? 'show-controls' : ''}`}
+          />
+          {hasAnnotations && (
+            <>
+              <AnnotationMarkers
+                annotations={annotations}
+                totalDuration={totalDuration}
+                onMarkerClick={goToAnnotation}
+                showControls={showControls}
+              />
+              <TableOfContents
+                sections={sections}
+                annotations={annotations}
+                title={title}
+                currentTime={currentTime}
+                onAnnotationClick={goToAnnotation}
+                isOpen={tocOpen}
+                onToggle={() => setTocOpen((v) => !v)}
+              />
+              <AnnotationOverlay
+                activeAnnotation={activeAnnotation}
+                iframeElement={iframeElement}
+                onDismiss={handleDismissOverlay}
+              />
+            </>
+          )}
+        </>
       )}
     </div>
   );

@@ -112,3 +112,220 @@
 .player-container .rr-controller .rr-progress-wrapper {
   border-color: #666 !important;
 }
+
+/* ========== Annotation Markers ========== */
+.annotation-markers {
+  position: fixed;
+  height: 0;
+  pointer-events: none;
+  z-index: 1001;
+  overflow: visible;
+}
+
+.annotation-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.annotation-marker:hover {
+  transform: translate(-50%, -50%) scale(1.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  z-index: 20;
+}
+
+.annotation-marker::after {
+  content: attr(data-title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  margin-bottom: 8px;
+  pointer-events: none;
+}
+
+.annotation-marker:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ========== Table of Contents Panel ========== */
+.toc-toggle {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(50, 50, 50, 0.9);
+  border: none;
+  color: white;
+  padding: 16px 8px;
+  cursor: pointer;
+  z-index: 1002;
+  border-radius: 4px 0 0 4px;
+  font-size: 16px;
+  transition: background 0.2s ease;
+}
+
+.toc-toggle:hover {
+  background: rgba(70, 70, 70, 0.95);
+}
+
+.toc-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100%;
+  background: rgba(25, 25, 25, 0.95);
+  backdrop-filter: blur(10px);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1003;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.toc-panel.open {
+  transform: translateX(0);
+}
+
+.toc-panel.open ~ .toc-toggle {
+  right: 320px;
+}
+
+.toc-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  font-size: 16px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.toc-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* Section styles */
+.toc-section {
+  margin-bottom: 8px;
+}
+
+.toc-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.toc-section-header:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.toc-section-header.has-active {
+  background: rgba(73, 80, 246, 0.15);
+}
+
+.toc-section-toggle {
+  font-size: 10px;
+  opacity: 0.6;
+  width: 12px;
+}
+
+.toc-section-title {
+  flex: 1;
+}
+
+.toc-section-items {
+  padding-left: 20px;
+}
+
+/* Annotation item styles */
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: background 0.2s ease;
+}
+
+.toc-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.toc-item.active {
+  background: rgba(73, 80, 246, 0.25);
+}
+
+.toc-item-marker {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.toc-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toc-item-title {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toc-item-time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}
+
+.toc-item-badges {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.toc-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ========== Driver.js Annotation Popover ========== */
+.annotation-popover {
+  max-width: 350px;
+}
