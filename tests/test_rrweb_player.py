@@ -1,5 +1,5 @@
 """
-Selenium test script for rrweb-driver-editor application.
+Selenium test script for rehearseur application.
 
 Prerequisites:
     pip install selenium webdriver-manager pytest

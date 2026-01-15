@@ -1,4 +1,4 @@
-# Claude Code Instructions for rrweb-driver-editor
+# Claude Code Instructions for rehearseur
 
 ## Project Overview
 

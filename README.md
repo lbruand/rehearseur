@@ -1,4 +1,4 @@
-# rrweb-driver-editor
+# rehearseur
 
 A React application that replays [rrweb](https://github.com/rrweb-io/rrweb) recordings.
 
