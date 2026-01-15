@@ -172,6 +172,14 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
     // Get iframe element for driver.js
     const replayer = playerRef.current.getReplayer?.();
     if (replayer?.iframe) {
+      // Add allow-scripts to sandbox to enable script execution in the replay iframe
+      const currentSandbox = replayer.iframe.getAttribute('sandbox') || '';
+      if (!currentSandbox.includes('allow-scripts')) {
+        replayer.iframe.setAttribute(
+          'sandbox',
+          currentSandbox ? `${currentSandbox} allow-scripts` : 'allow-same-origin allow-scripts'
+        );
+      }
       setIframeElement(replayer.iframe);
     }
 
