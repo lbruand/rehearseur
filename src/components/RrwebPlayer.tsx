@@ -33,7 +33,7 @@ type PlayerInstance = rrwebPlayer & {
 
 const MIN_DISPLAY_WIDTH = 200;
 const MIN_DISPLAY_HEIGHT = 150;
-const ANNOTATION_THRESHOLD_MS = 500;
+const ANNOTATION_THRESHOLD_MS = 100;
 
 export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);

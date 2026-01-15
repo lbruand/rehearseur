@@ -38,6 +38,7 @@ driverObj.highlight({
  * [ ] improve a lot the tests so the harness is harder
  * [ ] add some tests for the annotations parsing
  * [ ] find a better name
+ * [ ] can we reduce the ANNOTATION_THRESHOLD_MS
  * [ ] We should make a video/annotations that makes more sense
  * [ ] We should have a video of the whole thing to demo in the readme
  * [ ] ask claude to suggest some refactorings.
