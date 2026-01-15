@@ -111,7 +111,7 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
   // Keyboard shortcuts for navigation and playback
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't handle keyboard shortcuts if user is typing in an input
+      // Don't handle keyboard shortcuts if user is typing in an input outside the iframe
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
@@ -168,8 +168,19 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [annotations, currentTime, goToAnnotation]);
+
+    // Also listen for keyboard events inside the iframe to prevent them from being typed
+    if (iframeElement?.contentDocument) {
+      iframeElement.contentDocument.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (iframeElement?.contentDocument) {
+        iframeElement.contentDocument.removeEventListener('keydown', handleKeyDown);
+      }
+    };
+  }, [annotations, currentTime, goToAnnotation, iframeElement]);
 
   // Check for annotation triggers
   const checkAnnotationTriggers = useCallback(
