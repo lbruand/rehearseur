@@ -122,6 +122,7 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
         case 'ArrowRight': {
           // Skip to next bookmark and pause
           e.preventDefault();
+          setActiveAnnotation(null); // Dismiss any active overlay
           const nextAnnotation = annotations.find(
             (annotation) => annotation.timestamp > currentTime
           );
@@ -134,6 +135,7 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
         case 'ArrowLeft': {
           // Go back to previous bookmark and pause
           e.preventDefault();
+          setActiveAnnotation(null); // Dismiss any active overlay
           // Find annotations before current time, get the last one
           const previousAnnotations = annotations.filter(
             (annotation) => annotation.timestamp < currentTime - ANNOTATION_THRESHOLD_MS
@@ -148,6 +150,7 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
         case ' ': {
           // Play/pause toggle
           e.preventDefault();
+          setActiveAnnotation(null); // Dismiss any active overlay
           const replayer = playerRef.current.getReplayer?.();
           if (replayer) {
             // Check if currently playing by examining the internal state
