@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { Annotation } from '../types/annotations';
+import { DEFAULT_BOOKMARK_COLOR } from '../constants/annotations';
 
 interface ProgressBarBounds {
   left: number;
@@ -104,7 +105,7 @@ export function AnnotationMarkers({
             className="annotation-marker"
             style={{
               left: `${percentage}%`,
-              backgroundColor: annotation.color || '#f44336',
+              backgroundColor: annotation.color || DEFAULT_BOOKMARK_COLOR,
             }}
             data-title={annotation.title}
             onClick={(e) => {

@@ -1,0 +1,1 @@
+export const DEFAULT_BOOKMARK_COLOR = '#f44336';

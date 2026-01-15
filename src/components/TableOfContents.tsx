@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Annotation, TocSection } from '../types/annotations';
+import { DEFAULT_BOOKMARK_COLOR } from '../constants/annotations';
 
 interface TableOfContentsProps {
   sections: TocSection[];
@@ -59,7 +60,7 @@ function SectionItem({ section, activeId, onAnnotationClick }: SectionItemProps)
             >
               <div
                 className="toc-item-marker"
-                style={{ backgroundColor: annotation.color || '#f44336' }}
+                style={{ backgroundColor: annotation.color || DEFAULT_BOOKMARK_COLOR }}
               />
               <div className="toc-item-content">
                 <div className="toc-item-title">{annotation.title}</div>
