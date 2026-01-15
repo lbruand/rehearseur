@@ -104,7 +104,7 @@ export function AnnotationMarkers({
             className="annotation-marker"
             style={{
               left: `${percentage}%`,
-              backgroundColor: annotation.color || '#2196F3',
+              backgroundColor: annotation.color || '#f44336',
             }}
             data-title={annotation.title}
             onClick={(e) => {

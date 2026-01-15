@@ -59,7 +59,7 @@ function SectionItem({ section, activeId, onAnnotationClick }: SectionItemProps)
             >
               <div
                 className="toc-item-marker"
-                style={{ backgroundColor: annotation.color || '#2196F3' }}
+                style={{ backgroundColor: annotation.color || '#f44336' }}
               />
               <div className="toc-item-content">
                 <div className="toc-item-title">{annotation.title}</div>

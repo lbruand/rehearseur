@@ -17,7 +17,6 @@ Welcome to the JupyterLite demonstration.
 ### Annotation: Interface Overview {#interface}
 ---
 timestamp: 3000
-color: #2196F3
 autopause: true
 ---
 
