@@ -18,6 +18,7 @@ Welcome to the JupyterLite demonstration.
 ---
 timestamp: 3000
 color: #2196F3
+autopause: true
 ---
 
 The JupyterLite interface.
