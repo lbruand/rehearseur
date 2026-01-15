@@ -33,14 +33,13 @@ driverObj.highlight({
  * [x] add some tests
  * [x] have a default for autopause to true 
  * [x] cleanup the log for the annotations parsing
+ * [ ] add some key shortcuts
  * [ ] github actions : add some linting a builder, etc...
  * [ ] improve a lot the tests so the harness is harder
  * [ ] add some tests for the annotations parsing
  * [ ] find a better name
  * [ ] We should make a video/annotations that makes more sense
  * [ ] We should have a video of the whole thing to demo in the readme
- 
- * [ ] add some key shortcuts
  * [ ] ask claude to suggest some refactorings.
  * [ ] make the table of content refoldable
  * [ ] when one clicks on drive.js annotation, the play should start again directly
