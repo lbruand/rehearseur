@@ -94,6 +94,12 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
     if (playerRef.current) {
       playerRef.current.goto(annotation.timestamp);
       triggeredAnnotationsRef.current.clear();
+
+      // Update URL hash when navigating to annotation
+      const currentHash = window.location.hash.slice(1);
+      if (annotation.id !== currentHash) {
+        window.history.replaceState(null, '', `#${annotation.id}`);
+      }
     }
   }, []);
 
@@ -120,30 +126,6 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [annotations, goToAnnotation]);
-
-  // Update URL hash based on current playback position
-  useEffect(() => {
-    if (annotations.length === 0) return;
-
-    // Find the active annotation (last annotation before or at current time)
-    let activeAnnotationId: string | null = null;
-    for (const annotation of annotations) {
-      if (annotation.timestamp <= currentTime) {
-        activeAnnotationId = annotation.id;
-      } else {
-        break;
-      }
-    }
-
-    // Update URL hash if changed
-    const currentHash = window.location.hash.slice(1);
-    if (activeAnnotationId && activeAnnotationId !== currentHash) {
-      window.history.replaceState(null, '', `#${activeAnnotationId}`);
-    } else if (!activeAnnotationId && currentHash) {
-      // Clear hash if before first annotation
-      window.history.replaceState(null, '', window.location.pathname);
-    }
-  }, [currentTime, annotations]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -253,6 +235,12 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
           !triggeredAnnotationsRef.current.has(annotation.id)
         ) {
           triggeredAnnotationsRef.current.add(annotation.id);
+
+          // Update URL hash immediately when annotation triggers
+          const currentHash = window.location.hash.slice(1);
+          if (annotation.id !== currentHash) {
+            window.history.replaceState(null, '', `#${annotation.id}`);
+          }
 
           if (annotation.autopause ?? DEFAULT_AUTOPAUSE) {
             playerRef.current?.pause();
