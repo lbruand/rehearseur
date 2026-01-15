@@ -7,6 +7,7 @@ import { AnnotationMarkers } from './AnnotationMarkers';
 import { TableOfContents } from './TableOfContents';
 import { AnnotationOverlay } from './AnnotationOverlay';
 import type { Annotation } from '../types/annotations';
+import {DEFAULT_AUTOPAUSE} from "../constants/annotations.ts";
 
 interface RrwebPlayerProps {
   recordingUrl: string;
@@ -117,7 +118,7 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
         ) {
           triggeredAnnotationsRef.current.add(annotation.id);
 
-          if (annotation.autopause) {
+          if (annotation.autopause ?? DEFAULT_AUTOPAUSE) {
             playerRef.current?.pause();
           }
 
