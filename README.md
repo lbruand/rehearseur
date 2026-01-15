@@ -5,12 +5,18 @@ A React application that replays [rrweb](https://github.com/rrweb-io/rrweb) reco
 
 ## Features
 
-- Replays rrweb session recordings 
+- Replays rrweb session recordings
   ( you can use for instance for the [rrweb chrome extension](https://github.com/rrweb-io/rrweb/tree/master/packages/web-extension) to record rrweb sessions)
 - Supports both raw event arrays and wrapped `{events: [...]}` JSON formats
 - Supports gzip-compressed recordings (`.json.gz`)
 - Playback controls (play/pause, speed, progress bar)
 - Support hierarchical annotation bookmarks to go around the demo quickly
+- Keyboard shortcuts for navigation:
+  - **Space**: Play/pause toggle
+  - **Right Arrow**: Jump to next bookmark and pause
+  - **Left Arrow**: Jump to previous bookmark and pause
+- URL hash support for deep linking to bookmarks (`#annotation-id`)
+- Driver.js integration for annotation overlays with element highlighting
 
 ## Getting Started
 
@@ -42,15 +48,36 @@ Place your rrweb recording JSON file in the `public/` directory and update the `
 
 ## Running Tests
 
+The project includes both TypeScript unit tests and Selenium browser tests.
+
+### TypeScript Unit Tests
+
+Run unit tests for utilities and logic using Vitest:
+
+```bash
+npm test              # Run tests in watch mode
+npm test -- --run     # Run tests once
+npm run test:ui       # Run with UI (requires @vitest/ui)
+```
+
+**Test Coverage:**
+- `src/utils/parseAnnotations.test.ts` - Annotation markdown parser (23 tests)
+  - Frontmatter parsing (version, title)
+  - Section parsing with custom/auto IDs
+  - Annotation parsing (timestamp, color, autopause, descriptions, driver.js code)
+  - Sorting and complex scenarios
+
+### Browser Tests (Selenium)
+
 The project includes Selenium tests for browser automation testing.
 
-### Prerequisites
+#### Prerequisites
 
 ```bash
 pip install -r tests/requirements.txt
 ```
 
-### Running tests with Chromium
+#### Running tests with Chromium
 
 ```bash
 # Start the dev server
@@ -90,4 +117,6 @@ pytest tests/test_rrweb_player.py::TestRrwebPlayer::test_page_loads -v
 - React 19
 - TypeScript
 - Vite
+- Vitest (unit testing)
 - rrweb-player
+- driver.js (annotation overlays)

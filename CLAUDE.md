@@ -6,12 +6,27 @@ React application that replays rrweb session recordings with driver.js annotatio
 
 ## Running Tests
 
-### Prerequisites
+### TypeScript Unit Tests (Vitest)
+
+Run TypeScript unit tests for utilities and logic:
+
+```bash
+npm test              # Run tests in watch mode
+npm test -- --run     # Run tests once
+npm run test:ui       # Run with UI
+```
+
+**Test Files:**
+- `src/utils/parseAnnotations.test.ts` - Tests for annotation markdown parser (23 tests)
+
+### Browser Tests (Selenium + Pytest)
+
+#### Prerequisites
 ```bash
 pip install -r tests/requirements.txt
 ```
 
-### Running Tests
+#### Running Tests
 
 1. **Start the dev server first** (required):
 ```bash
@@ -28,22 +43,22 @@ pytest tests/test_rrweb_player.py -v
 docker run -d --name selenium-firefox --network host --shm-size=2gb selenium/standalone-firefox:latest
 ```
 
-### Test Commands
+#### Test Commands
 
 | Command | Description |
 |---------|-------------|
-| `pytest tests/test_rrweb_player.py -v` | Run all tests |
+| `pytest tests/test_rrweb_player.py -v` | Run all browser tests |
 | `pytest tests/test_rrweb_player.py::TestDriverJsIntegration -v` | Driver.js overlay tests only |
 | `pytest tests/test_rrweb_player.py::TestRrwebPlayer::test_page_loads -v` | Single test |
 
-### Test Structure
+#### Test Structure
 
 - `tests/test_rrweb_player.py` - Selenium browser tests
-  - `TestRrwebPlayer` - Basic player functionality
+  - `TestRrwebPlayer` - Basic player functionality + keyboard shortcuts
   - `TestDriverJsIntegration` - Driver.js annotation overlay tests
     - Uses Chromium (snap) and Firefox (Docker)
 
-### Important Notes
+#### Important Notes
 
 - Dev server runs on `http://localhost:5174`
 - Chromium binary: `/snap/bin/chromium`
