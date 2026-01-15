@@ -1,0 +1,55 @@
+# Project: rrweb-driver-editor
+
+## Running Tests
+
+This project uses Selenium for browser automation testing.
+
+### Prerequisites
+- Python with pip installed
+- Docker (for Firefox tests)
+- Dev server running on port 5174
+
+### Setup
+```bash
+pip install -r tests/requirements.txt
+```
+
+### Running Tests
+
+1. Start the dev server first:
+```bash
+npm run dev
+```
+
+2. Run all tests with Chromium:
+```bash
+pytest tests/test_rrweb_player.py -v
+```
+
+3. For Firefox tests, start the Docker container first:
+```bash
+docker run -d --name selenium-firefox --network host --shm-size=2gb selenium/standalone-firefox:latest
+```
+
+### Test Structure
+
+- `tests/test_rrweb_player.py` - Main test file
+  - `TestRrwebPlayer` - Basic player functionality tests
+  - `TestDriverJsIntegration` - Driver.js annotation overlay tests
+    - `test_annotation_overlay_element_exists_chromium` - Tests with Chromium
+    - `test_annotation_overlay_element_exists_firefox` - Tests with Firefox (requires Docker)
+
+### Running Specific Tests
+```bash
+# Driver.js integration tests only
+pytest tests/test_rrweb_player.py::TestDriverJsIntegration -v
+
+# Single test
+pytest tests/test_rrweb_player.py::TestRrwebPlayer::test_page_loads -v
+```
+
+### Notes
+- Chromium tests use `/snap/bin/chromium` binary
+- Firefox tests connect to Selenium container at `http://localhost:4444/wd/hub`
+- Tests run in headless mode by default
+- Dev server must be running on `http://localhost:5174` before running tests
