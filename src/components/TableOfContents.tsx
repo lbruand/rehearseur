@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { Annotation, TocSection } from '../types/annotations';
 import { DEFAULT_BOOKMARK_COLOR } from '../constants/annotations';
+import { formatTime } from '../utils/formatting';
+import { findActiveAnnotation } from '../utils/annotationUtils';
 
 interface TableOfContentsProps {
   sections: TocSection[];
@@ -10,25 +12,6 @@ interface TableOfContentsProps {
   onAnnotationClick: (annotation: Annotation) => void;
   isOpen: boolean;
   onToggle: () => void;
-}
-
-function formatTime(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
-function findActiveAnnotation(annotations: Annotation[], currentTime: number): string | null {
-  let active: Annotation | null = null;
-  for (const annotation of annotations) {
-    if (annotation.timestamp <= currentTime) {
-      active = annotation;
-    } else {
-      break;
-    }
-  }
-  return active?.id ?? null;
 }
 
 interface SectionItemProps {

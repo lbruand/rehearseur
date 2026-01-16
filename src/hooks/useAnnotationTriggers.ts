@@ -4,6 +4,7 @@ import type { PlayerInstance } from '../types/player';
 import { ANNOTATION_THRESHOLD_MS } from '../types/player';
 import { DEFAULT_AUTOPAUSE } from '../constants/annotations';
 import { updateUrlHash } from '../utils/playerUtils';
+import { CONFIG } from '../constants/config';
 
 export interface UseAnnotationTriggersProps {
   playerRef: React.RefObject<PlayerInstance | null>;
@@ -31,7 +32,7 @@ export function useAnnotationTriggers({
   const checkAnnotationTriggers = useCallback(
     (time: number) => {
       // Detect seeking backward - reset triggered annotations
-      if (time < lastTimeRef.current - 1000) {
+      if (time < lastTimeRef.current - CONFIG.ANNOTATIONS.SEEKING_BACKWARD_THRESHOLD_MS) {
         triggeredAnnotationsRef.current.clear();
       }
       lastTimeRef.current = time;
@@ -73,7 +74,7 @@ export function useAnnotationTriggers({
         setCurrentTime(time);
         checkAnnotationTriggers(time);
       }
-    }, 100);
+    }, CONFIG.PLAYER.POLLING_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, [checkAnnotationTriggers, iframeElement, playerRef]);

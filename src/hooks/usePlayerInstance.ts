@@ -3,6 +3,8 @@ import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
 import type { PlayerInstance, RecordingDimensions } from '../types/player';
 import { loadRecording, calculatePlayerSize } from '../utils/playerUtils';
+import { CONFIG } from '../constants/config';
+import { useEventListener } from './useEventListener';
 
 export interface UsePlayerInstanceResult {
   playerRef: React.RefObject<PlayerInstance | null>;
@@ -52,23 +54,17 @@ export function usePlayerInstance(recordingUrl: string): UsePlayerInstanceResult
   }, [recordingDimensions]);
 
   // Handle mouse move to show/hide controls
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const distanceFromBottom = window.innerHeight - e.clientY;
-      setShowControls(distanceFromBottom < 100);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  useEventListener('mousemove', (e) => {
+    const distanceFromBottom = window.innerHeight - e.clientY;
+    setShowControls(distanceFromBottom < CONFIG.UI.MOUSE_CONTROLS_DISTANCE_PX);
+  });
 
   // Handle window resize
+  useEventListener('resize', calculateSize);
+
+  // Calculate size on mount
   useEffect(() => {
     calculateSize();
-
-    const handleResize = () => calculateSize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
   }, [calculateSize]);
 
   // Load recording

@@ -1,4 +1,5 @@
 import type rrwebPlayer from 'rrweb-player';
+import { CONFIG } from '../constants/config';
 
 export interface RecordingDimensions {
   width: number;
@@ -17,6 +18,7 @@ export type PlayerInstance = rrwebPlayer & {
   };
 };
 
-export const MIN_DISPLAY_WIDTH = 200;
-export const MIN_DISPLAY_HEIGHT = 150;
-export const ANNOTATION_THRESHOLD_MS = 100;
+// Re-export constants from CONFIG for backward compatibility
+export const MIN_DISPLAY_WIDTH = CONFIG.PLAYER.DISPLAY_MIN_WIDTH;
+export const MIN_DISPLAY_HEIGHT = CONFIG.PLAYER.DISPLAY_MIN_HEIGHT;
+export const ANNOTATION_THRESHOLD_MS = CONFIG.ANNOTATIONS.TRIGGER_THRESHOLD_MS;

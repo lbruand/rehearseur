@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import type { Annotation } from '../types/annotations';
 import type { PlayerInstance } from '../types/player';
 import { ANNOTATION_THRESHOLD_MS } from '../types/player';
+import { DOM_SELECTORS } from '../constants/selectors';
 
 export interface UseKeyboardShortcutsProps {
   annotations: Annotation[];
@@ -70,7 +71,7 @@ export function useKeyboardShortcuts({
             // The rrweb player doesn't expose a direct isPaused() method,
             // so we'll call pause() which is idempotent, or we can track state
             // For simplicity, we'll just use the controller's play/pause button behavior
-            const controller = containerRef.current?.querySelector('.rr-controller__btns button');
+            const controller = containerRef.current?.querySelector(DOM_SELECTORS.RR_CONTROLLER_BTN);
             if (controller instanceof HTMLElement) {
               controller.click();
             }

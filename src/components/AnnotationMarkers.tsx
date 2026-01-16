@@ -1,6 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { Annotation } from '../types/annotations';
 import { DEFAULT_BOOKMARK_COLOR } from '../constants/annotations';
+import { DOM_SELECTORS } from '../constants/selectors';
+import { CONFIG } from '../constants/config';
+import { useEventListener } from '../hooks/useEventListener';
 
 interface ProgressBarBounds {
   left: number;
@@ -29,7 +32,7 @@ export function AnnotationMarkers({
 
   const updateProgressBarBounds = useCallback(() => {
     // Find the progress bar element in rrweb player
-    const progressBar = document.querySelector('.rr-progress');
+    const progressBar = document.querySelector(DOM_SELECTORS.RR_PROGRESS);
     if (progressBar) {
       const rect = progressBar.getBoundingClientRect();
       // Only update if we get valid bounds (element is visible)
@@ -58,7 +61,7 @@ export function AnnotationMarkers({
         });
       });
       // Also update bounds after animation completes
-      const boundsTimer = setTimeout(updateProgressBarBounds, 350);
+      const boundsTimer = setTimeout(updateProgressBarBounds, CONFIG.UI.ANIMATION_DURATION_MS);
       return () => {
         cancelAnimationFrame(initialBoundsTimer);
         cancelAnimationFrame(visibilityTimer);
@@ -72,11 +75,8 @@ export function AnnotationMarkers({
     }
   }, [showControls, updateProgressBarBounds]);
 
-  useEffect(() => {
-    // Update on resize
-    window.addEventListener('resize', updateProgressBarBounds);
-    return () => window.removeEventListener('resize', updateProgressBarBounds);
-  }, [updateProgressBarBounds]);
+  // Update bounds on window resize
+  useEventListener('resize', updateProgressBarBounds);
 
   // Don't render if no annotations or duration
   if (totalDuration <= 0 || annotations.length === 0) {

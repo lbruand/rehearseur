@@ -1,9 +1,10 @@
 import { RrwebPlayer } from './components/RrwebPlayer';
+import { CONFIG } from './constants/config';
 import './App.css';
 
 function App() {
-  const recordingUrl = "/recording_jupyterlite.json";
-  const annotationsUrl = recordingUrl.replace(/\.json$/, '.annotations.md');
+  const recordingUrl = CONFIG.RECORDING.DEFAULT_URL;
+  const annotationsUrl = recordingUrl.replace(/\.json$/, CONFIG.RECORDING.ANNOTATIONS_SUFFIX);
 
   return (
     <div className="app">
