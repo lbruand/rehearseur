@@ -17,6 +17,7 @@
  * [x] github actions : add some linting a builder, etc...
  * [x] ask claude to suggest some refactorings.
  * [x] change the logo
+
  * [ ] the top of the page is not shown on firefox
  * [ ] add a timestamp display that you can copy/paste
  * [ ] improve a lot the tests so the harness is harder
