@@ -74,9 +74,6 @@ export function TableOfContents({
 
   return (
     <>
-      <button className="toc-toggle" onClick={onToggle} title="Table of Contents">
-        {isOpen ? '\u203A' : '\u2039'}
-      </button>
       <div className={`toc-panel ${isOpen ? 'open' : ''}`}>
         <div className="toc-header">{title}</div>
         <div className="toc-list">
@@ -90,6 +87,9 @@ export function TableOfContents({
           ))}
         </div>
       </div>
+      <button className="toc-toggle" onClick={onToggle} title="Table of Contents">
+        {isOpen ? '\u203A' : '\u2039'}
+      </button>
     </>
   );
 }

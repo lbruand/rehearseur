@@ -55,8 +55,8 @@
   /* Z-Index Layers */
   --z-player-controls: 1000;
   --z-annotation-markers: 1001;
-  --z-toc-toggle: 1002;
-  --z-toc-panel: 1003;
+  --z-toc-panel: 1002;
+  --z-toc-toggle: 1003;
 
   /* Sizes */
   --marker-size: 12px;
@@ -250,10 +250,10 @@
   color: white;
   padding: 16px 8px;
   cursor: pointer;
-  z-index: 1002;
+  z-index: 1003;
   border-radius: 4px 0 0 4px;
   font-size: 16px;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, right 0.3s ease;
 }
 
 .toc-toggle:hover {
@@ -270,7 +270,7 @@
   backdrop-filter: blur(10px);
   transform: translateX(100%);
   transition: transform 0.3s ease;
-  z-index: 1003;
+  z-index: 1002;
   display: flex;
   flex-direction: column;
   border-left: 1px solid rgba(255, 255, 255, 0.1);
@@ -320,14 +320,22 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+.toc-section-header:hover .toc-section-toggle {
+  opacity: 1;
+}
+
 .toc-section-header.has-active {
   background: rgba(73, 80, 246, 0.15);
 }
 
 .toc-section-toggle {
-  font-size: 10px;
-  opacity: 0.6;
-  width: 12px;
+  font-size: 12px;
+  opacity: 0.8;
+  width: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .toc-section-title {
