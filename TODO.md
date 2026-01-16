@@ -15,12 +15,12 @@
    ( and modify the url according during replay) 
  * [x] add some tests for the annotations parsing
  * [x] github actions : add some linting a builder, etc...
+ * [x] ask claude to suggest some refactorings.
  * [ ] the top of the page is not shown on firefox
  * [ ] add a timestamp display that you can copy/paste
  * [ ] improve a lot the tests so the harness is harder
  * [ ] We should make a video/annotations that makes more sense
  * [ ] We should have a video of the whole thing to demo in the readme
- * [x] ask claude to suggest some refactorings.
  * [ ] make the table of content refoldable
  * [ ] when one clicks on drive.js annotation, the play should start again directly
  * [ ] annotations and bookmarks should be generated using genai. How will the model be able to read the json.
