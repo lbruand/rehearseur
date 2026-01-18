@@ -10,7 +10,6 @@ export interface UseKeyboardShortcutsProps {
   goToAnnotation: (annotation: Annotation) => void;
   iframeElement: HTMLIFrameElement | null;
   playerRef: React.RefObject<PlayerInstance | null>;
-  containerRef: React.RefObject<HTMLDivElement | null>;
   setActiveAnnotation: (annotation: Annotation | null) => void;
 }
 
@@ -20,7 +19,6 @@ export function useKeyboardShortcuts({
   goToAnnotation,
   iframeElement,
   playerRef,
-  containerRef,
   setActiveAnnotation,
 }: UseKeyboardShortcutsProps): void {
   useEffect(() => {
@@ -62,10 +60,8 @@ export function useKeyboardShortcuts({
           break;
         }
         case ' ': {
-          // Play/pause toggle
+          // Play/pause toggle (overlay dismissal handled by onPlayStateChange callback)
           e.preventDefault();
-          setActiveAnnotation(null); // Dismiss any active overlay
-          // Find controller button in document.body (controller is appended there)
           const controller = document.querySelector(DOM_SELECTORS.RR_CONTROLLER_BTN);
           if (controller instanceof HTMLElement) {
             controller.click();
@@ -88,5 +84,5 @@ export function useKeyboardShortcuts({
         iframeElement.contentDocument.removeEventListener('keydown', handleKeyDown);
       }
     };
-  }, [annotations, currentTime, goToAnnotation, iframeElement, playerRef, containerRef, setActiveAnnotation]);
+  }, [annotations, currentTime, goToAnnotation, iframeElement, playerRef, setActiveAnnotation]);
 }

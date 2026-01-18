@@ -20,10 +20,20 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
   // Load annotations
   const { annotations, sections, title } = useAnnotations(annotationsUrl);
 
+  // UI state
+  const [tocOpen, setTocOpen] = useState(false);
+  const [activeAnnotation, setActiveAnnotation] = useState<Annotation | null>(null);
+
+  // Dismiss overlay when playback starts
+  const handlePlayStateChange = useCallback((isPlaying: boolean) => {
+    if (isPlaying) {
+      setActiveAnnotation(null);
+    }
+  }, []);
+
   // Initialize player instance
   const {
     playerRef,
-    containerRef,
     containerCallbackRef,
     wrapperRef,
     loading,
@@ -32,11 +42,7 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
     iframeElement,
     totalDuration,
     showControls,
-  } = usePlayerInstance(recordingUrl);
-
-  // UI state
-  const [tocOpen, setTocOpen] = useState(false);
-  const [activeAnnotation, setActiveAnnotation] = useState<Annotation | null>(null);
+  } = usePlayerInstance({ recordingUrl, onPlayStateChange: handlePlayStateChange });
 
   // Navigation helper with hash update
   const goToAnnotation = useCallback((annotation: Annotation) => {
@@ -76,7 +82,6 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
     goToAnnotation: goToAnnotationWithClear,
     iframeElement,
     playerRef,
-    containerRef,
     setActiveAnnotation,
   });
 

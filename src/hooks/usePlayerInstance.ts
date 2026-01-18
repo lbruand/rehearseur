@@ -6,6 +6,11 @@ import { loadRecording, calculatePlayerSize } from '../utils/playerUtils';
 import { CONFIG } from '../constants/config';
 import { useEventListener } from './useEventListener';
 
+export interface UsePlayerInstanceOptions {
+  recordingUrl: string;
+  onPlayStateChange?: (isPlaying: boolean) => void;
+}
+
 export interface UsePlayerInstanceResult {
   playerRef: React.RefObject<PlayerInstance | null>;
   containerRef: React.RefObject<HTMLDivElement | null>;
@@ -20,7 +25,7 @@ export interface UsePlayerInstanceResult {
   setShowControls: (show: boolean) => void;
 }
 
-export function usePlayerInstance(recordingUrl: string): UsePlayerInstanceResult {
+export function usePlayerInstance({ recordingUrl, onPlayStateChange }: UsePlayerInstanceOptions): UsePlayerInstanceResult {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null!);
   const playerRef = useRef<PlayerInstance | null>(null);
@@ -128,6 +133,7 @@ export function usePlayerInstance(recordingUrl: string): UsePlayerInstanceResult
         autoPlay: false,
         width: playerSize.width,
         height: playerSize.height,
+        onPlayStateChange,
       },
     });
 

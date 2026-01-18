@@ -7,6 +7,7 @@ export interface MinimalPlayerProps {
   autoPlay?: boolean;
   width?: number;
   height?: number;
+  onPlayStateChange?: (isPlaying: boolean) => void;
 }
 
 interface RecordingMeta {
@@ -35,10 +36,13 @@ export default class MinimalPlayer {
   private totalTime: number = 0;
   private isDragging: boolean = false;
   private isPlaying: boolean = false;
+  private onPlayStateChange?: (isPlaying: boolean) => void;
 
   constructor(config: MinimalPlayerConfig) {
     const { target, props } = config;
-    const { events, showController = true, autoPlay = false, width, height } = props;
+    const { events, showController = true, autoPlay = false, width, height, onPlayStateChange } = props;
+
+    this.onPlayStateChange = onPlayStateChange;
 
     // Get recording dimensions from meta event
     const metaEvent = events.find((e) => e.type === 4) as { data?: RecordingMeta } | undefined;
@@ -211,6 +215,7 @@ export default class MinimalPlayer {
       this.isPlaying = true;
     }
     this.updatePlayButton();
+    this.onPlayStateChange?.(this.isPlaying);
   }
 
   private updatePlayButton(): void {
