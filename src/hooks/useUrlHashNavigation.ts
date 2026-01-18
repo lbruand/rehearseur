@@ -8,6 +8,8 @@ export interface UseUrlHashNavigationProps {
   goToAnnotation: (annotation: Annotation) => void;
   playerRef: React.RefObject<PlayerInstance | null>;
   setActiveAnnotation: (annotation: Annotation | null) => void;
+  iframeElement: HTMLIFrameElement | null;
+  triggeredAnnotationsRef: React.MutableRefObject<Set<string>>;
 }
 
 export function useUrlHashNavigation({
@@ -15,10 +17,13 @@ export function useUrlHashNavigation({
   goToAnnotation,
   playerRef,
   setActiveAnnotation,
+  iframeElement,
+  triggeredAnnotationsRef,
 }: UseUrlHashNavigationProps): void {
   useEffect(() => {
     const handleHashChange = () => {
-      if (!playerRef.current || annotations.length === 0) return;
+      // Wait until player is fully ready (iframeElement is set after player creation)
+      if (!playerRef.current || !iframeElement || annotations.length === 0) return;
 
       const hash = getHashFromUrl();
       if (!hash) return;
@@ -26,6 +31,14 @@ export function useUrlHashNavigation({
       // Find annotation by ID
       const annotation = annotations.find(a => a.id === hash);
       if (annotation) {
+        // Mark all annotations at or before target timestamp as triggered
+        // This prevents earlier annotations from firing and overwriting the hash
+        for (const a of annotations) {
+          if (a.timestamp <= annotation.timestamp) {
+            triggeredAnnotationsRef.current.add(a.id);
+          }
+        }
+
         setActiveAnnotation(null); // Dismiss any active overlay
         goToAnnotation(annotation);
       }
@@ -37,5 +50,5 @@ export function useUrlHashNavigation({
     // Listen for hash changes
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [annotations, goToAnnotation, playerRef, setActiveAnnotation]);
+  }, [annotations, goToAnnotation, playerRef, setActiveAnnotation, iframeElement, triggeredAnnotationsRef]);
 }

@@ -70,9 +70,11 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
   // Handle URL hash navigation
   useUrlHashNavigation({
     annotations,
-    goToAnnotation: goToAnnotationWithClear,
+    goToAnnotation,
     playerRef,
     setActiveAnnotation,
+    iframeElement,
+    triggeredAnnotationsRef,
   });
 
   // Handle keyboard shortcuts
