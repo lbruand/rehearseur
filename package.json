@@ -20,6 +20,7 @@
     "dev": "vite",
     "build": "tsc -p tsconfig.lib.json && BUILD_LIB=true vite build",
     "build:app": "tsc -b && vite build",
+    "prepare": "npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
