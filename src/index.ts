@@ -1,3 +1,6 @@
+// Styles - must be imported by consumers
+import './App.css';
+
 // Components
 export { RrwebPlayer } from './components/RrwebPlayer';
 export { AnnotationOverlay } from './components/AnnotationOverlay';
