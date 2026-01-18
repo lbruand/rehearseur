@@ -158,7 +158,7 @@ export function usePlayerInstance({ recordingUrl, onPlayStateChange }: UsePlayer
         setTotalDuration(meta.endTime - meta.startTime);
       });
     }
-  }, [ready, playerSize]);
+  }, [ready, playerSize, onPlayStateChange]);
 
   // Expose containerCallbackRef by setting it via effect
   useEffect(() => {
