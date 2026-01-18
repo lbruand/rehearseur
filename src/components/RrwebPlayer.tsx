@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useAnnotations } from '../hooks/useAnnotations';
 import { usePlayerInstance } from '../hooks/usePlayerInstance';
-import { useAnnotationTriggers } from '../hooks/useAnnotationTriggers';
+import { useNavigation } from '../hooks/useNavigation';
 import { useUrlHashNavigation } from '../hooks/useUrlHashNavigation';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -9,7 +9,6 @@ import { AnnotationMarkers } from './AnnotationMarkers';
 import { TableOfContents } from './TableOfContents';
 import { AnnotationOverlay } from './AnnotationOverlay';
 import type { Annotation } from '../types/annotations';
-import { updateUrlHash } from '../utils/playerUtils';
 
 interface RrwebPlayerProps {
   recordingUrl: string;
@@ -20,15 +19,21 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
   // Load annotations
   const { annotations, sections, title } = useAnnotations(annotationsUrl);
 
-  // UI state
+  // UI state - kept here to avoid circular dependency with player callbacks
   const [tocOpen, setTocOpen] = useState(false);
   const [activeAnnotation, setActiveAnnotation] = useState<Annotation | null>(null);
 
-  // Dismiss overlay when playback starts
+  // Callback for when play state changes - dismisses overlay when playing
   const handlePlayStateChange = useCallback((isPlaying: boolean) => {
     if (isPlaying) {
       setActiveAnnotation(null);
     }
+  }, []);
+
+  // Callback for when user seeks via progress bar - dismisses overlay
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleSeek = useCallback((_time: number) => {
+    setActiveAnnotation(null);
   }, []);
 
   // Initialize player instance
@@ -42,64 +47,59 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
     iframeElement,
     totalDuration,
     showControls,
-  } = usePlayerInstance({ recordingUrl, onPlayStateChange: handlePlayStateChange });
+  } = usePlayerInstance({
+    recordingUrl,
+    onPlayStateChange: handlePlayStateChange,
+    onSeek: handleSeek,
+  });
 
-  // Navigation helper with hash update
-  const goToAnnotation = useCallback((annotation: Annotation) => {
-    if (playerRef.current) {
-      playerRef.current.goto(annotation.timestamp);
-      // Update URL hash when navigating to annotation
-      updateUrlHash(annotation.id);
-    }
-  }, [playerRef]);
-
-  // Track annotation triggers and current time
-  const { currentTime, triggeredAnnotationsRef } = useAnnotationTriggers({
+  // Central navigation state and handlers
+  const navigation = useNavigation({
     playerRef,
     annotations,
     iframeElement,
+    activeAnnotation,
     setActiveAnnotation,
   });
 
-  // Navigate to annotation and update overlay state
-  const goToAnnotationWithClear = useCallback((annotation: Annotation) => {
-    triggeredAnnotationsRef.current.clear();
-    goToAnnotation(annotation);
-    // Show overlay if annotation has driver.js code, hide otherwise
-    if (annotation.driverJsCode) {
-      setActiveAnnotation(annotation);
-    } else {
-      setActiveAnnotation(null);
-    }
-  }, [goToAnnotation, triggeredAnnotationsRef]);
+  const {
+    currentTime,
+    navigateToAnnotation,
+    dismissOverlay,
+  } = navigation;
+
+  // Wrapper functions for child components
+  const handleMarkerClick = useCallback(
+    (annotation: Annotation) => {
+      navigateToAnnotation({ annotation, source: 'marker' });
+    },
+    [navigateToAnnotation]
+  );
+
+  const handleTocClick = useCallback(
+    (annotation: Annotation) => {
+      navigateToAnnotation({ annotation, source: 'toc' });
+    },
+    [navigateToAnnotation]
+  );
 
   // Handle URL hash navigation
   useUrlHashNavigation({
     annotations,
-    goToAnnotation,
-    playerRef,
-    setActiveAnnotation,
+    navigation,
     iframeElement,
-    triggeredAnnotationsRef,
   });
 
   // Handle keyboard shortcuts
   useKeyboardShortcuts({
     annotations,
     currentTime,
-    goToAnnotation: goToAnnotationWithClear,
+    navigation,
     iframeElement,
-    playerRef,
-    setActiveAnnotation,
   });
 
   // Update document title
   useDocumentTitle(title);
-
-  // Handle overlay dismissal
-  const handleDismissOverlay = useCallback(() => {
-    setActiveAnnotation(null);
-  }, []);
 
   const showPlayer = !loading && !error && !tooSmall;
   const hasAnnotations = annotations.length > 0;
@@ -125,7 +125,7 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
               <AnnotationMarkers
                 annotations={annotations}
                 totalDuration={totalDuration}
-                onMarkerClick={goToAnnotationWithClear}
+                onMarkerClick={handleMarkerClick}
                 showControls={showControls}
               />
               <TableOfContents
@@ -133,14 +133,14 @@ export function RrwebPlayer({ recordingUrl, annotationsUrl }: RrwebPlayerProps) 
                 annotations={annotations}
                 title={title}
                 currentTime={currentTime}
-                onAnnotationClick={goToAnnotationWithClear}
+                onAnnotationClick={handleTocClick}
                 isOpen={tocOpen}
                 onToggle={() => setTocOpen((v) => !v)}
               />
               <AnnotationOverlay
                 activeAnnotation={activeAnnotation}
                 iframeElement={iframeElement}
-                onDismiss={handleDismissOverlay}
+                onDismiss={dismissOverlay}
               />
             </>
           )}

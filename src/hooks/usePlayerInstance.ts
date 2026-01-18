@@ -9,6 +9,7 @@ import { useEventListener } from './useEventListener';
 export interface UsePlayerInstanceOptions {
   recordingUrl: string;
   onPlayStateChange?: (isPlaying: boolean) => void;
+  onSeek?: (time: number) => void;
 }
 
 export interface UsePlayerInstanceResult {
@@ -25,7 +26,7 @@ export interface UsePlayerInstanceResult {
   setShowControls: (show: boolean) => void;
 }
 
-export function usePlayerInstance({ recordingUrl, onPlayStateChange }: UsePlayerInstanceOptions): UsePlayerInstanceResult {
+export function usePlayerInstance({ recordingUrl, onPlayStateChange, onSeek }: UsePlayerInstanceOptions): UsePlayerInstanceResult {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null!);
   const playerRef = useRef<PlayerInstance | null>(null);
@@ -134,6 +135,7 @@ export function usePlayerInstance({ recordingUrl, onPlayStateChange }: UsePlayer
         width: playerSize.width,
         height: playerSize.height,
         onPlayStateChange,
+        onSeek,
       },
     });
 
@@ -158,7 +160,7 @@ export function usePlayerInstance({ recordingUrl, onPlayStateChange }: UsePlayer
         setTotalDuration(meta.endTime - meta.startTime);
       });
     }
-  }, [ready, playerSize, onPlayStateChange]);
+  }, [ready, playerSize, onPlayStateChange, onSeek]);
 
   // Expose containerCallbackRef by setting it via effect
   useEffect(() => {

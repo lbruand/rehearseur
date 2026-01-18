@@ -1,26 +1,37 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { Annotation } from '../types/annotations';
-import type { PlayerInstance } from '../types/player';
+import type { UseNavigationResult } from './useNavigation';
 import { ANNOTATION_THRESHOLD_MS } from '../types/player';
-import { DOM_SELECTORS } from '../constants/selectors';
 
 export interface UseKeyboardShortcutsProps {
   annotations: Annotation[];
   currentTime: number;
-  goToAnnotation: (annotation: Annotation) => void;
+  navigation: UseNavigationResult;
   iframeElement: HTMLIFrameElement | null;
-  playerRef: React.RefObject<PlayerInstance | null>;
-  setActiveAnnotation: (annotation: Annotation | null) => void;
 }
 
 export function useKeyboardShortcuts({
   annotations,
   currentTime,
-  goToAnnotation,
+  navigation,
   iframeElement,
-  playerRef,
-  setActiveAnnotation,
 }: UseKeyboardShortcutsProps): void {
+  // Use refs to avoid stale closures and unnecessary effect re-runs
+  const navigationRef = useRef(navigation);
+  const currentTimeRef = useRef(currentTime);
+  const annotationsRef = useRef(annotations);
+
+  // Update refs in an effect to satisfy lint rules
+  useEffect(() => {
+    navigationRef.current = navigation;
+  });
+  useEffect(() => {
+    currentTimeRef.current = currentTime;
+  });
+  useEffect(() => {
+    annotationsRef.current = annotations;
+  });
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't handle keyboard shortcuts if user is typing in an input outside the iframe
@@ -28,44 +39,45 @@ export function useKeyboardShortcuts({
         return;
       }
 
-      if (!playerRef.current) return;
+      const nav = navigationRef.current;
+      const time = currentTimeRef.current;
+      const annots = annotationsRef.current;
 
       switch (e.key) {
         case 'ArrowRight': {
           // Skip to next bookmark and pause
           e.preventDefault();
-          setActiveAnnotation(null); // Dismiss any active overlay
-          const nextAnnotation = annotations.find(
-            (annotation) => annotation.timestamp > currentTime
+          const nextAnnotation = annots.find(
+            (annotation) => annotation.timestamp > time
           );
           if (nextAnnotation) {
-            goToAnnotation(nextAnnotation);
-            playerRef.current.pause();
+            nav.navigateToAnnotation({
+              annotation: nextAnnotation,
+              source: 'keyboard',
+            });
           }
           break;
         }
         case 'ArrowLeft': {
           // Go back to previous bookmark and pause
           e.preventDefault();
-          setActiveAnnotation(null); // Dismiss any active overlay
           // Find annotations before current time, get the last one
-          const previousAnnotations = annotations.filter(
-            (annotation) => annotation.timestamp < currentTime - ANNOTATION_THRESHOLD_MS
+          const previousAnnotations = annots.filter(
+            (annotation) => annotation.timestamp < time - ANNOTATION_THRESHOLD_MS
           );
           const previousAnnotation = previousAnnotations[previousAnnotations.length - 1];
           if (previousAnnotation) {
-            goToAnnotation(previousAnnotation);
-            playerRef.current.pause();
+            nav.navigateToAnnotation({
+              annotation: previousAnnotation,
+              source: 'keyboard',
+            });
           }
           break;
         }
         case ' ': {
-          // Play/pause toggle (overlay dismissal handled by onPlayStateChange callback)
+          // Play/pause toggle
           e.preventDefault();
-          const controller = document.querySelector(DOM_SELECTORS.RR_CONTROLLER_BTN);
-          if (controller instanceof HTMLElement) {
-            controller.click();
-          }
+          nav.togglePlayPause();
           break;
         }
       }
@@ -84,5 +96,5 @@ export function useKeyboardShortcuts({
         iframeElement.contentDocument.removeEventListener('keydown', handleKeyDown);
       }
     };
-  }, [annotations, currentTime, goToAnnotation, iframeElement, playerRef, setActiveAnnotation]);
+  }, [iframeElement]); // Only re-run when iframeElement changes
 }

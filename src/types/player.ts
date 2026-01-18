@@ -11,6 +11,7 @@ export interface PlayerInstance {
   play: () => void;
   goto: (timeOffset: number, play?: boolean) => void;
   getReplayer: () => Replayer;
+  getIsPlaying: () => boolean;
   showController: () => void;
   hideController: () => void;
   $destroy?: () => void;

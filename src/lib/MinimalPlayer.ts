@@ -8,6 +8,7 @@ export interface MinimalPlayerProps {
   width?: number;
   height?: number;
   onPlayStateChange?: (isPlaying: boolean) => void;
+  onSeek?: (time: number) => void;
 }
 
 interface RecordingMeta {
@@ -37,12 +38,14 @@ export default class MinimalPlayer {
   private isDragging: boolean = false;
   private isPlaying: boolean = false;
   private onPlayStateChange?: (isPlaying: boolean) => void;
+  private onSeek?: (time: number) => void;
 
   constructor(config: MinimalPlayerConfig) {
     const { target, props } = config;
-    const { events, showController = true, autoPlay = false, width, height, onPlayStateChange } = props;
+    const { events, showController = true, autoPlay = false, width, height, onPlayStateChange, onSeek } = props;
 
     this.onPlayStateChange = onPlayStateChange;
+    this.onSeek = onSeek;
 
     // Get recording dimensions from meta event
     const metaEvent = events.find((e) => e.type === 4) as { data?: RecordingMeta } | undefined;
@@ -202,6 +205,7 @@ export default class MinimalPlayer {
     this.isPlaying = false;
     this.updateProgress();
     this.updatePlayButton();
+    this.onSeek?.(time);
   }
 
   private togglePlayPause(): void {
@@ -291,6 +295,10 @@ export default class MinimalPlayer {
 
   getReplayer(): Replayer {
     return this.replayer;
+  }
+
+  getIsPlaying(): boolean {
+    return this.isPlaying;
   }
 
   showController(): void {
